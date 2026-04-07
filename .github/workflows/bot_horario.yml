@@ -1,0 +1,38 @@
+name: Bot de Noticias BDO SA
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+jobs:
+  buscar_noticias:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Preparar carpeta
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Instalar herramientas
+        run: pip install -r requirements.txt
+
+      - name: Ejecutar Bot de Noticias
+        env:
+          WH_ACTUALIZACIONES: ${{ secrets.WH_ACTUALIZACIONES }}
+          WH_AVISOS: ${{ secrets.WH_AVISOS }}
+          WH_EVENTOS: ${{ secrets.WH_EVENTOS }}
+        run: python bot_noticias.py
+
+      - name: Guardar la memoria (No repetir noticias)
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add *.txt
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Memoria actualizada" && git push)
