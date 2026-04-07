@@ -23,7 +23,11 @@ jobs:
       - name: Instalar herramientas
         run: pip install -r requirements.txt
 
-      - name: Ejecutar Bot de Noticias
+      - - name: Ejecutar Bot de Noticias
+        env:
+          WH_ACTUALIZACIONES: ${{ secrets.WH_ACTUALIZACIONES }}
+          WH_AVISOS: ${{ secrets.WH_AVISOS }}
+          WH_EVENTOS: ${{ secrets.WH_EVENTOS }}
         run: python bot_noticias.py
 
       - name: Guardar la memoria (No repetir noticias)
