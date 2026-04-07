@@ -2,10 +2,10 @@ import requests
 from bs4 import BeautifulSoup
 import os
 
-# --- WEBHOOKS Y ROL ---
-WH_ACTUALIZACIONES = "https://discord.com/api/webhooks/1490268181720465509/OYsQurlz2tjkL1lQa8xpnC5F6Bu_ZVMUJEDZ6GPLv7vJUF-fZA22oybsnD9vCfbMF4Ks"
-WH_AVISOS = "https://discord.com/api/webhooks/1490268337798643833/B6v_h__IWjMf8dA4GSeiyfmRe1TZSNkm4XYmRReDQgTOwBaYwU1aYHBtNRNDd9-qeqOi"
-WH_EVENTOS = "https://discord.com/api/webhooks/1490268471202680953/10316jlxpVEmzWWvhTi75k-Pm3KLo5U997pSyNgChK3YEfg6HRkBzBzoWd7lrOwfLNq3"
+# --- WEBHOOKS DESDE LA BÓVEDA SECRETA ---
+WH_ACTUALIZACIONES = os.environ.get("WH_ACTUALIZACIONES")
+WH_AVISOS = os.environ.get("WH_AVISOS")
+WH_EVENTOS = os.environ.get("WH_EVENTOS")
 ROL_NOTICIAS = "<@&1483002893303808173>"
 
 # --- ENLACES OFICIALES BDO SA ---
@@ -15,7 +15,9 @@ URL_EVENTOS = "https://www.sa.playblackdesert.com/es-MX/News/Notice?boardType=3"
 
 def enviar_mensaje(url, mensaje):
     try:
-        requests.post(url, json={"content": mensaje}, timeout=10)
+        # Solo enviamos si la URL existe (por si falla la bóveda)
+        if url:
+            requests.post(url, json={"content": mensaje}, timeout=10)
     except:
         pass
 
@@ -39,14 +41,13 @@ def revisar_noticias(url_web, url_webhook, nombre_archivo, etiqueta):
                 
                 if titulo != ultimo_guardado:
                     enviar_mensaje(url_webhook, f"{ROL_NOTICIAS}\n📢 **Nuevo {etiqueta} publicado:**\n**{titulo}**\nRevisa los detalles aquí: {enlace}")
-                    # Guardamos el título para que no lo vuelva a enviar
                     with open(nombre_archivo, "w", encoding="utf-8") as f:
                         f.write(titulo)
     except:
         pass
 
 if __name__ == "__main__":
-    print("Buscando nuevas noticias en BDO SA...")
+    print("Buscando nuevas noticias en BDO SA de forma segura...")
     revisar_noticias(URL_ACTUALIZACIONES, WH_ACTUALIZACIONES, "reg_act.txt", "Actualización")
     revisar_noticias(URL_AVISOS, WH_AVISOS, "reg_avi.txt", "Aviso")
     revisar_noticias(URL_EVENTOS, WH_EVENTOS, "reg_eve.txt", "Evento")
